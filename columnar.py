@@ -26,7 +26,10 @@ def double_encrypt(message):
     generated_keys['key1'] = key1
     generated_keys['key2'] = key2
     
-    return double_encrypted
+    # Decrypt immediately to show the output
+    double_decrypted_message = double_decrypt(double_encrypted)
+    
+    return double_encrypted, double_decrypted_message
 
 def double_decrypt(ciphertext):
     # Retrieve keys from the global dictionary
@@ -118,7 +121,7 @@ def main():
 
     user_message = st.text_input("Enter the message to encrypt:", "")
     double_encrypted_message = ""
-double_decrypted_message = ""
+    double_decrypted_message = ""
 
     if st.button("Encrypt"):
         double_encrypted_message, double_decrypted_message = double_encrypt(user_message)
