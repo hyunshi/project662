@@ -7,6 +7,27 @@ def generate_random_key(length):
     random.shuffle(key)
     return "".join(key[:length])
 
+def encrypt(message, key):
+    # Perform columnar transposition encryption
+    num_columns = len(key)
+    num_rows = (len(message) + num_columns - 1) // num_columns
+    empty_cells = num_columns * num_rows - len(message)
+
+    # Add empty cells to the message
+    message += "X" * empty_cells
+
+    # Create a 2D array to hold the message in columns
+    grid = [list(message[i:i + num_columns]) for i in range(0, len(message), num_columns)]
+
+    # Sort the columns based on the key
+    sorted_columns = [list(column) for column in zip(*sorted(zip(key, *grid)))]
+
+    # Combine the sorted columns into the encrypted message
+    encrypted_message = "".join("".join(column) for column in sorted_columns)
+
+    return encrypted_message
+
+
 def triple_encrypt_auto_key_user_input(message):
     # Remove spaces from the message
     message = message.replace(" ", "")
