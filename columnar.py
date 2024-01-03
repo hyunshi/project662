@@ -41,5 +41,9 @@ def main():
     message = st.text_input("Enter your message:")
 
     if st.button("Encrypt"):
-        if message:
-            # Perform triple columna
+        # Perform triple columnar transposition and display the result
+            result = triple_encrypt_auto_key_user_input(message.upper())
+            st.write("\nTriple Encrypted Message:")
+            st.write(result)
+        else:
+            st.warning("Please enter a message.")
