@@ -118,17 +118,19 @@ def main():
 
     user_message = st.text_input("Enter the message to encrypt:", "")
     double_encrypted_message = ""
+double_decrypted_message = ""
 
     if st.button("Encrypt"):
-        double_encrypted_message = double_encrypt(user_message)
+        double_encrypted_message, double_decrypted_message = double_encrypt(user_message)
         st.write("Generated Key 1:", generated_keys.get('key1', ''))
         st.write("Generated Key 2:", generated_keys.get('key2', ''))
         st.write("Double Encrypted:", double_encrypted_message)
 
     if st.button("Decrypt"):
-        double_decrypted_message = double_decrypt(double_encrypted_message)
         if double_decrypted_message:
             st.write("Double Decrypted:", double_decrypted_message)
-
+        else:
+            st.warning("Please encrypt the message first.")
+            
 if __name__ == "__main__":
     main()
