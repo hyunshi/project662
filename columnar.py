@@ -1,5 +1,6 @@
 import streamlit as st
 import random
+import string
 
 def generate_random_key(length):
     alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -7,68 +8,110 @@ def generate_random_key(length):
     random.shuffle(key)
     return "".join(key[:length])
 
+def double_encrypt(message):
+    # Generate two keys based on the length of the message
+    key1 = generate_random_key(len(message))
+    key2 = generate_random_key(len(message))
+    
+    # Apply the first columnar transposition
+    first_encrypted = encrypt(message, key1)
+    
+    # Apply the second columnar transposition to the result of the first
+    double_encrypted = encrypt(first_encrypted, key2)
+    
+    return double_encrypted, key1, key2
+
+def double_decrypt(ciphertext, key1, key2):
+    # Apply the second columnar transposition in reverse order
+    first_decrypted = decrypt(ciphertext, key2)
+    
+    # Apply the first columnar transposition to the result of the second
+    double_decrypted = decrypt(first_decrypted, key1)
+    
+    return double_decrypted
+
 def encrypt(message, key):
-    # Perform columnar transposition encryption
+ # Remove spaces and convert to uppercase
+    message = message.replace(" ", "").upper()
+    
+    # Calculate the number of columns based on the key length
     num_columns = len(key)
-    num_rows = (len(message) + num_columns - 1) // num_columns
-    empty_cells = num_columns * num_rows - len(message)
-
-    # Add empty cells to the message
-    message += "X" * empty_cells
-
-    # Create a 2D array to hold the message in columns
-    grid = [list(message[i:i + num_columns]) for i in range(0, len(message), num_columns)]
-
-    # Sort the columns based on the key
-    sorted_columns = [list(column) for column in zip(*sorted(zip(key, *grid)))]
-
-    # Combine the sorted columns into the encrypted message
-    encrypted_message = "".join("".join(column) for column in sorted_columns)
-
-    return encrypted_message
-
-
-def triple_encrypt_auto_key_user_input(message):
-    # Remove spaces from the message
-    message = message.replace(" ", "")
     
-    # Generate three random keys based on the length of the message
-    key_length = len(message) // 2
-    key1 = generate_random_key(key_length)
-    key2 = generate_random_key(key_length)
-    key3 = generate_random_key(key_length)
+    # Calculate the number of rows needed
+    num_rows = -(-len(message) // num_columns)  # Ceil division
     
-    # Display the generated keys
-    st.write("\nGenerated Keys:")
-    st.write("Key 1:", key1)
-    st.write("Key 2:", key2)
-    st.write("Key 3:", key3)
+    # Fill in the matrix with the message characters
+    matrix = [[' ' for _ in range(num_columns)] for _ in range(num_rows)]
+    k = 0
     
-    # Apply the first columnar transposition with key1
-    first_transposition = encrypt(message, key1)
+    for i in range(num_rows):
+        for j in range(num_columns):
+            if k < len(message):
+                matrix[i][j] = message[k]
+                k += 1
     
-    # Apply the second columnar transposition with key2
-    second_transposition = encrypt(first_transposition, key2)
+    # Create a dictionary to store the column order based on the key
+    key_order = {key[i]: i for i in range(num_columns)}
     
-    # Apply the third columnar transposition with key3
-    triple_transposition = encrypt(second_transposition, key3)
+    # Read out the matrix column by column based on the key order
+    encrypted_text = ""
+    for col in sorted(key_order.keys()):
+        col_index = key_order[col]
+        for row in range(num_rows):
+            encrypted_text += matrix[row][col_index]
     
-    return triple_transposition
+    return encrypted_text
+
+def decrypt(ciphertext, key):
+    # Calculate the number of columns based on the key length
+    num_columns = len(key)
+    
+    # Calculate the number of rows needed
+    num_rows = -(-len(ciphertext) // num_columns)  # Ceil division
+    
+    # Create a dictionary to store the column order based on the key
+    key_order = {key[i]: i for i in range(num_columns)}
+    
+    # Calculate the number of characters in the last column
+    last_col_chars = len(ciphertext) % num_columns
+    
+    # Initialize variables for matrix and counters
+    matrix = [[' ' for _ in range(num_columns)] for _ in range(num_rows)]
+    k = 0
+    
+    # Fill in the matrix column by column based on the key order
+    for col in sorted(key_order.keys()):
+        col_index = key_order[col]
+        for row in range(num_rows):
+            if col_index == num_columns - 1 and row >= num_rows - last_col_chars:
+                matrix[row][col_index] = ciphertext[k]
+                k += 1
+            else:
+                matrix[row][col_index] = ciphertext[k]
+                k += 1
+    
+    # Read out the matrix row by row to get the decrypted text
+    decrypted_text = ""
+    for i in range(num_rows):
+        for j in range(num_columns):
+            decrypted_text += matrix[i][j]
+    
+    return decrypted_text
 
 def main():
-    st.title("Triple Columnar Transposition Encryption App")
+    st.title("Double Columnar Transposition Cipher")
 
-    # User input for the message
-    message = st.text_input("Enter your message:")
+    user_message = st.text_input("Enter the message to encrypt:", "")
 
     if st.button("Encrypt"):
-        if message:
-            # Perform triple columnar transposition and display the result
-            result = triple_encrypt_auto_key_user_input(message.upper())
-            st.write("\nTriple Encrypted Message:")
-            st.write(result)
-        else:
-            st.warning("Please enter a message.")
+        double_encrypted_message, generated_key1, generated_key2 = double_encrypt(user_message)
+        st.write("Generated Key 1:", generated_key1)
+        st.write("Generated Key 2:", generated_key2)
+        st.write("Double Encrypted:", double_encrypted_message)
+
+    if st.button("Decrypt"):
+        double_decrypted_message = double_decrypt(double_encrypted_message, generated_key1, generated_key2)
+        st.write("Double Decrypted:", double_decrypted_message)
 
 if __name__ == "__main__":
     main()
