@@ -102,7 +102,9 @@ def main():
     st.title("Double Columnar Transposition Cipher")
 
     user_message = st.text_input("Enter the message to encrypt:", "")
-    double_encrypted_message = ""  # Initialize here to ensure it's available in the broader scope
+    double_encrypted_message = ""
+    generated_key1 = ""
+    generated_key2 = ""
 
     if st.button("Encrypt"):
         double_encrypted_message, generated_key1, generated_key2 = double_encrypt(user_message)
@@ -111,8 +113,11 @@ def main():
         st.write("Double Encrypted:", double_encrypted_message)
 
     if st.button("Decrypt"):
-        double_decrypted_message = double_decrypt(double_encrypted_message, generated_key1, generated_key2)
-        st.write("Double Decrypted:", double_decrypted_message)
+        if generated_key1 and generated_key2:  # Check if keys are available
+            double_decrypted_message = double_decrypt(double_encrypted_message, generated_key1, generated_key2)
+            st.write("Double Decrypted:", double_decrypted_message)
+        else:
+            st.warning("Please encrypt the message first.")
 
 if __name__ == "__main__":
     main()
