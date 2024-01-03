@@ -45,5 +45,5 @@ def main():
             result = triple_encrypt_auto_key_user_input(message.upper())
             st.write("\nTriple Encrypted Message:")
             st.write(result)
-        else:
+        else
             st.warning("Please enter a message.")
