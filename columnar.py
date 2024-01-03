@@ -102,6 +102,7 @@ def main():
     st.title("Double Columnar Transposition Cipher")
 
     user_message = st.text_input("Enter the message to encrypt:", "")
+    double_encrypted_message = ""  # Initialize here to ensure it's available in the broader scope
 
     if st.button("Encrypt"):
         double_encrypted_message, generated_key1, generated_key2 = double_encrypt(user_message)
