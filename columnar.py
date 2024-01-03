@@ -7,10 +7,6 @@ def generate_random_key(length):
     random.shuffle(key)
     return "".join(key[:length])
 
-def encrypt(message, key):
-    # Columnar transposition encryption
-    # ... (your existing encrypt function)
-
     def triple_encrypt_auto_key_user_input(message):
         # Remove spaces from the message
         message = message.replace(" ", "")
